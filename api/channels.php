@@ -1,5 +1,5 @@
 <?php
-$phpname = 'live.php';//主要文件所在位置 如果在文件夹里如路径/文件名.php 请改成路径/文件名.php
+$phpname = '/api/live.php';//主要文件所在位置 如果在文件夹里如路径/文件名.php 请改成路径/文件名.php
 define('CHECK',0);//0是关闭ua检测 1是开启ua检测
 define('UA','testua');//检测的ua
 
