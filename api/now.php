@@ -25,9 +25,15 @@ $response = curl_exec($ch);
 curl_close($ch);
 $responseData = json_decode($response, true);
 $assetUrl = $responseData['asset'][0];
-$m3u8Content = file_get_contents($assetUrl);
 $baseUrl = preg_replace('/\/[^\/]+$/', '', $assetUrl);
-$playUrl = preg_replace('/([^\/]+\.ts)/', $baseUrl . '/$1', $m3u8Content);
+$m3u8Content = file_get_contents($assetUrl);
+$lines = explode("\n", $m3u8Content);
+$playUrl = '';
+foreach ($lines as $line) {
+    if (strpos($line, '.ts') !== false) {
+        $playUrl .= $baseUrl . '/' . trim($line) . "\n";
+    }
+}
 header('Content-Type: application/x-mpegurl');
 echo $playUrl;
 ?>
