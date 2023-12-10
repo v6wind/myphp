@@ -1,34 +1,13 @@
 <?php
-$url = 'https://webtvapi.now.com/10/7/getLiveURL';
-$headers = array(
-    'Content-Type: application/json',
-    'User-Agent: NNC/6.3.0 (com.now.news; build:2309121224; iOS 17.1.0) Alamofire/5.2.2'
-);
-$body = json_encode(array(
-    'deviceType' => 'IOS_PHONE',
-    'contentId' => '332',
-    'audioCode' => 'A',
-    'deviceId' => '8269809F-7702-45CE-9378-D7157A2E6819',
-    'mode' => 'prod',
-    'callerReferenceNo' => '20140702122500',
-    'contentType' => 'Channel'
-));
-$ch = curl_init($url);
+$id=$_GET["id"];
+$bstrURL = 'https://d1jithvltpp1l1.cloudfront.net/getLiveURL?channelno='.$id.'&format=HLS';
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $bstrURL);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-$response = curl_exec($ch);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0" );
+$data = curl_exec($ch);
 curl_close($ch);
-$responseData = json_decode($response, true);
-$assetUrl = $responseData['asset'][0];
-$m3u8Content = file_get_contents($assetUrl);
-$baseUrl = preg_replace('/\/07\.m3u8.*/', '', $assetUrl);
-$baseUrl .= '/';
-$playUrl = preg_replace('|(.*?).ts|', $baseUrl . '$1.ts', $m3u8Content);
-header('Content-Type: application/x-mpegurl');
-echo $playUrl;
-?>
+$reArr = json_decode($data,true);
+header('location:'.$reArr["asset"]["hls"]["adaptive"][0]);
