@@ -25,25 +25,6 @@ $response = curl_exec($ch);
 curl_close($ch);
 $responseData = json_decode($response, true);
 $assetUrl = $responseData['asset'][0];
-$baseUrl = preg_replace('/\/[^\/]+$/', '', $assetUrl);
 $m3u8Content = file_get_contents($assetUrl);
-$lines = explode("\n", $m3u8Content);
-$playlists = array();
-foreach ($lines as $line) {
-    if (strpos($line, '.m3u8') !== false) {
-        $playlistUrl = $baseUrl . '/' . trim($line);
-        $playlistContent = file_get_contents($playlistUrl);
-        $playlistLines = explode("\n", $playlistContent);
-        $playlistBaseUrl = preg_replace('/\/[^\/]+$/', '', $playlistUrl);
-        $playlistUrls = array();
-        foreach ($playlistLines as $playlistLine) {
-            if (strpos($playlistLine, '.ts') !== false) {
-                $playlistUrls[] = $playlistBaseUrl . '/' . trim($playlistLine);
-            }
-        }
-        $playlists[] = implode("\n", $playlistUrls);
-    }
-}
-header('Content-Type: application/x-mpegurl');
-echo implode("\n", $playlists);
+echo $m3u8Content;
 ?>
