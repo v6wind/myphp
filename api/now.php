@@ -13,7 +13,7 @@ $body = json_encode(array(
     'audioCode' => 'A',
     'deviceId' => '8269809F-7702-45CE-9378-D7157A2E6819',
     'mode' => 'prod',
-    'callerReferenceNo' => '<a href="tel:20140702122500">20140702122500</a>',
+    'callerReferenceNo' => '20140702122500',
     'contentType' => 'Channel'
 ));
 // 发送请求并获取响应数据
@@ -31,12 +31,18 @@ curl_close($ch);
 $responseData = json_decode($response, true);
 $assetUrl = $responseData['asset'][0];
 
+// 获取直播流的基础 URL
+$baseUrl = preg_replace('/\/07\.m3u8.*/', '', $assetUrl);
 
-// 替换为chunklist.m3u8
-$playUrl = str_replace('playlist.m3u8', 'chunklist.m3u8', $assetUrl);
+// 获取.m3u8文件的内容
+$m3u8Content = file_get_contents($assetUrl);
+
+// 提取直播流URL的前半部分
+$baseUrl = preg_replace('/\/07\.m3u8.*/', '', $assetUrl);
+$baseUrl .= '/';
 
 // 替换.ts文件的URL为完整的直播流URL
-$playUrl = preg_replace('|(.*?).ts|', preg_split('/chunklist.m3u8/', $playUrl)[0] . '$1.ts', file_get_contents($playUrl));
+$playUrl = preg_replace('|(.*?).ts|', $baseUrl . '$1.ts', $m3u8Content);
 
 // 设置响应头的Content-Type为"application/x-mpegURL"
 header('Content-Type: application/x-mpegURL');
