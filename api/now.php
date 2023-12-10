@@ -26,5 +26,9 @@ curl_close($ch);
 $responseData = json_decode($response, true);
 $assetUrl = $responseData['asset'][0];
 $m3u8Content = file_get_contents($assetUrl);
-echo $m3u8Content;
+$baseUrl = preg_replace('/\/07\.m3u8.*/', '', $assetUrl);
+$baseUrl .= '/';
+$playUrl = preg_replace('|(.*?).ts|', $baseUrl . '$1.ts', $m3u8Content);
+header('Content-Type: application/x-mpegurl');
+echo $playUrl;
 ?>
