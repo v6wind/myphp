@@ -7,14 +7,12 @@
 广州法治,id=fazhi
 广州南国都市,id=shenghuo
 */
-$id=$_GET['id'];
-$url='https://www.gztv.com/gztv/api/tv/'.$id;
-$ch=curl_init();
-curl_setopt($ch,CURLOPT_URL,$url);
-curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false);
-$data=curl_exec($ch);
-curl_close($ch);
-$re=json_decode($data)->data;
-header('location:'.$re);
+$data = json_decode(file_get_contents("https://gzbn.gztv.com:7443/plus-cloud-manage-app/liveChannel/queryLiveChannelList?type=1"))->data;//id=31-36
+$count = count($data);
+for($i=0;$i<$count;$i++){
+if($data[$i]->stationNumber == $_GET["id"]){
+$playurl = $data[$i]->httpUrl;
+break;
+}}
+header("Location: {$playurl}",true,302);
 ?>
