@@ -1,33 +1,19 @@
 <?php
 /*
-    GeJI 恩山论坛
-    *DIYP支持版↓
-    .php?id=0&normal=1 翡翠台
-    .php?id=1&normal=1 J2
-    .php?id=2&normal=1 無線新聞台576P
-    .php?id=4&normal=1 無線新聞台·海外版
-    .php?id=6&normal=1 無線財經體育資訊台·海外版
-    .php?id=8&normal=1 事件直播頻道1
-    .php?id=10&normal=1 事件直播頻道2
-    *DIYP支持版↑
-    .php?id=0 翡翠台
-    .php?id=1 J2
-    .php?id=2 無線新聞台
-    .php?id=3 無線新聞台576P
-    .php?id=4 無線新聞台·海外版
-    .php?id=5 無線新聞台·海外版360P
-    .php?id=6 無線財經體育資訊台·海外版
-    .php?id=7 無線財經體育資訊台·海外版360P
-    .php?id=8 事件直播頻道1
-    .php?id=9 事件直播頻道1 360P
-    .php?id=10 事件直播頻道2
-    .php?id=11 事件直播頻道2 360P
+* GeJI恩山论坛
+*.php?id=0 无线新闻台[1280x720]
+*.php?id=1 无线财*体育资讯台[1280x720]
+*.php?id=2 无线新闻台·海外版[1920x1080]
+*.php?id=3 无线财*体育资讯台·网络版[1920x1080]
+*.php?id=4 事件直播1台[1280x720]
+*.php?id=5 事件直播2台[1280x720]
+*.php?id=6 无线新闻台[max1920x1080,min960x360,多画质多音轨DIYP不支持]
+*.php?id=7 无线财*体育资讯台[max1920x1080,min960x360,多画质多音轨DIYP不支持]
+*.php?id=8 事件直播1台[max1920x1080,min960x360,多画质多音轨DIYP不支持]
+*.php?id=9 事件直播2台[max1920x1080,min960x360,多画质多音轨DIYP不支持]
 */
 $id = $_GET['id'];
-$ids = ['I-J','I-J2','C','C','I-NEWS','I-NEWS','I-FINA','I-FINA','NEVT1','NEVT1','NEVT2','NEVT2'];
-if(!isset($ids[$id])) {
-    exit();
-};
+$ids = ['C','A','I-NEWS','I-FINA','NEVT1','NEVT2','C','A','NEVT1','NEVT2'];
 $header[] = 'CLIENT-IP:127.0.0.1';
 $header[] = 'X-FORWARDED-FOR:127.0.0.1';
 $ch = curl_init();
@@ -39,20 +25,11 @@ curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,false);
 $data = curl_exec($ch);
 curl_close($ch);
 $json = json_decode($data);
-$url = $json->content->url;
-if($id == '3' || $id == '5' ||$id == '7' || $id == '9' || $id == '11' || $id == '13') {
-    header('location:'.$url->sd);
+if($id == '0' || $id == '1' || $id == '4' || $id == '5') {
+    $url = $json->content->url->hd;
+} else if($id == '2' || $id == '3') {
+    $url = preg_replace('/&p=(.*?)$/','&p=3000',$json->content->url->hd);
 } else {
-    if($id == '0' || $id == '1' || $id == '2' || $id == '4' || $id == '6' || $id == '8' || $id == '10') {
-        if($_GET['normal']) {
-            $r = preg_replace('/&p=(.*?)$/','',$url->hd);
-            $r = $r.'&p=3000';
-            header('location:'.$r);
-            exit();
-        };
-        $r = preg_replace('/&p=(.*?)$/','',$url->hd);
-        header('location:'.$r);
-        exit();
-    };
-    header('location:'.$url->hd);
+    $url = preg_replace('/&p=(.*?)$/','',$json->content->url->hd);
 };
+header('location:'.$url);
