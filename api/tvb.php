@@ -12,44 +12,24 @@
 *.php?id=8 事件直播1台[max1920x1080,min960x360,多画质多音轨DIYP不支持]
 *.php?id=9 事件直播2台[max1920x1080,min960x360,多画质多音轨DIYP不支持]
 */
-
-$id = isset($_GET['id']) ? $_GET['id'] : null;
-$ids = ['C', 'A', 'I-NEWS', 'I-FINA', 'NEVT1', 'NEVT2', 'C', 'A', 'NEVT1', 'NEVT2'];
-
-if ($id === null || !is_numeric($id) || $id < 0 || $id > 9) {
-    // 处理无效或缺少id参数
-    echo "无效的id参数。";
-    exit;
-}
-
-$clientIP = $_SERVER['REMOTE_ADDR'];
-
-$header[] = 'CLIENT-IP: ' . $clientIP;
-$header[] = 'X-FORWARDED-FOR: ' . $clientIP;
+$id = $_GET['id'];
+$ids = ['C','A','I-NEWS','I-FINA','NEVT1','NEVT2','C','A','NEVT1','NEVT2'];
+$header[] = 'CLIENT-IP:101.32.211.65';
+$header[] = 'X-FORWARDED-FOR:101.32.211.65';
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://inews-api.tvb.com/news/checkout/live/hd/ott_' . $ids[$id] . '_h264?profile=safari');
-curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+curl_setopt($ch,CURLOPT_URL,'https://inews-api.tvb.com/news/checkout/live/hd/ott_'.$ids[$id].'_h264?profile=safari');
+curl_setopt($ch,CURLOPT_HTTPHEADER,$header);
+curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false);
+curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,false);
 $data = curl_exec($ch);
 curl_close($ch);
 $json = json_decode($data);
-
-if (!$json || !isset($json->content->url->hd)) {
-    // 处理API响应错误
-    echo "获取流媒体URL时发生错误。";
-    exit;
-}
-
-$url = $json->content->url->hd;
-
-if ($id == 2 || $id == 3) {
-    $url = preg_replace('/&p=(.*?)$/', '&p=3000', $url);
+if($id == '0' || $id == '1' || $id == '4' || $id == '5') {
+    $url = $json->content->url->hd;
+} else if($id == '2' || $id == '3') {
+    $url = preg_replace('/&p=(.*?)$/','&p=3000',$json->content->url->hd);
 } else {
-    $url = preg_replace('/&p=(.*?)$/', '', $url);
-}
-
-header('Location: ' . $url);
-exit;
-?>
+    $url = preg_replace('/&p=(.*?)$/','',$json->content->url->hd);
+};
+header('location:'.$url);
