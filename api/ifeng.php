@@ -1,46 +1,27 @@
 <?php
-header("Content-Type: text/json; charset=UTF-8");
-$id = isset($_GET['id'])?$_GET['id']:'fhzx';
-$tv = array(
-  'fhzx' => '4',  //資 訊 台
-  'fhzw' => '5',  //中 文 台
-  'fhhk' => '6',  //香 港 台
-  );
-$url = 'http://m.fengshows.com/api/v3/live?live_type=tv';
-$response = get_data($url);
-$channels = json_decode($response);
-foreach ($channels as $channel) {
-  if($channel->order==$tv[$id]){
-    $channelId = $channel->_id;
-    break; 
-  }    
-}
-$info = get_url($channelId,'FHD');
-if($info->status !== '0'){
-  $info = get_url($channelId,'HD');
-}
-$liveUrl = $info->data->live_url;
-header('Location:'.$liveUrl);
+date_default_timezone_set("Asia/Shanghai");
+$id = $_GET['id'] ?? 'zx';
+$n = [
+    'ws'=>'0701pcc72',//凤凰卫视
+    'zx'=>'0701pin72',//凤凰资讯
+    'hk'=>'0701phk72',//凤凰香港
+];
 
-function get_url($cid, $qa){
-  $url = "https://m.fengshows.com/api/v3/hub/live/auth-url?live_id={$cid}&live_qa={$qa}";
-  $response = get_data($url);
-  $data = json_decode($response);
-  return $data;
+if (strstr($id, '4')) {
+    $seq = intval(time() / 3.029 + 1134263867);
+} elseif (strstr($id, '5')) {
+    $seq = intval(time() / 3.026 + 1130361490);
+} elseif (strstr($id, '6')) {
+    $seq = intval(time() / 3.008 + 1130361113);
+} else {
+    $seq = intval(time() / 4.000 + 1269967460)-3;       //-3以实际测试调整
 }
-function get_data($url){
-$header=array(
-  'fengshows-client: app(ios,5040718)',
-  'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 15_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/98.0.4758.85 Mobile/15E148 Safari/604.1',
-  'token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiIzMWUzZmVjMC1lY2IzLTExZWQtOWUxNS1mM2FiZjliZjhkOTYiLCJuYW1lIjoiIiwidmlwIjowLCJqdGkiOiJqQm5nMXBvZlQiLCJpYXQiOjE2ODM0NDg5ODksImV4cCI6MTY4NjA0MDk4OX0.0r8PuLetMiusCJul2tuPRzU8fnhxhqxBoycDV0_vKxI', 
-);
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-$data = curl_exec($ch);
-curl_close($ch);
-return $data;
+
+$content = "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:4\n#EXT-X-MEDIA-SEQUENCE:$seq\n";
+for($i=0;$i<3;$i++){
+    $content .= "#EXTINF:4.000,\n";
+    $content .= "http://qctv.fengshows.cn/live/".$n[$id]."-".strval($seq+$i).".ts\n";
 }
+header("Content-Type: application/vnd.apple.mpegurl");
+header("Content-Disposition: attachment; filename=playlist.m3u8");
+echo $content;
