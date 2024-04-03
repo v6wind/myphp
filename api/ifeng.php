@@ -1,24 +1,41 @@
 <?php
-$id = isset($_GET['id'])?$_GET['id']:'fhzx';
-$n = [
-  'fhzx' => '011dac7f-d5cf-4c71-92c5-f77e465a1e4f',
-  'fhzw' => '62ba669b-9fe0-4d03-bf86-cc79f3f6948b',
-  'fhhk' => 'aa85d05d-7fe0-4452-a503-aa43d14873a4',
-];
-$ch = curl_init('http://m.fengshows.com/api/v3/live?live_type=tv');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-$res = curl_exec($ch);
-curl_close($ch);
-$d = json_decode($res);
-for($i=0;$i<4;$i++){
-  if($n[$id] == $d[$i] -> _id) { $burl = $d[$i] -> live_url_fhd;};
+// 请求接口 URL
+$url = 'https://nine.ifeng.com/PhoenixTvDelay?gv=7.65.0&av=0&proid=ifengnews&day='.date('Y-m-d').'&index=37&phtvType=';
+
+// 根据输入参数获取对应的直播流类型
+if ($_GET['id'] == 'phtvNews') {
+  $phtvType = 'phtvNews';
+} else if ($_GET['id'] == 'phtvChinese') {
+  $phtvType = 'phtvChinese';
+} else {
+  die('Invalid input parameter.');
 }
-$n = preg_split('/.flv/',basename($burl))[0];
-$hexTime = dechex(time());
-$hash = md5("obb9Lxyv5C/live/".$n.$hexTime);
-$playurl = 'http://tlive.fengshows.cn/live/'.$n.'.flv?txSecret='.$hash.'&txTime='.$hexTime;
-header('Location:'.$playurl);
-//echo $playurl;
+
+// 发送 HTTP 请求
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url.$phtvType);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_4_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Mobile/14E304');
+$response = curl_exec($ch);
+curl_close($ch);
+
+// 解析响应体
+$data = json_decode($response, true);
+if ($data['code'] != 0) {
+  die('Error: '.$data['msg']);
+}
+
+// 获得播放链接
+$playUrl = $data['data']['m3u8'];
+
+// 修改播放链接，设置 delay=0 并移除 xhttps 和 xresid 参数
+$parsedUrl = parse_url($playUrl);
+parse_str($parsedUrl['query'], $queryParams);
+$queryParams['delay'] = 0;
+unset($queryParams['xhttps'], $queryParams['xresid']);
+$newQuery = http_build_query($queryParams);
+$modifiedUrl = $parsedUrl['scheme'].'://'.$parsedUrl['host'].$parsedUrl['path'].'?'.$newQuery;
+
+// 跳转修改后的播放链接进行播放
+header('Location: '.$modifiedUrl);
 ?>
