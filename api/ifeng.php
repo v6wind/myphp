@@ -1,27 +1,22 @@
 <?php
-date_default_timezone_set("Asia/Shanghai");
-$id = $_GET['id'] ?? 'zx';
-$n = [
-    'ws'=>'0701pcc72',//凤凰卫视
-    'zx'=>'0701pin72',//凤凰资讯
-    'hk'=>'0701phk72',//凤凰香港
-];
 
-if (strstr($id, '4')) {
-    $seq = intval(time() / 3.029 + 1134263867);
-} elseif (strstr($id, '5')) {
-    $seq = intval(time() / 3.026 + 1130361490);
-} elseif (strstr($id, '6')) {
-    $seq = intval(time() / 3.008 + 1130361113);
-} else {
-    $seq = intval(time() / 4.000 + 1269967460)-3;       //-3以实际测试调整
-}
+        $id = $_GET['id']-1; // 1=凤凰资讯 2=凤凰中文 3=凤凰深圳旁边
+        $bstrURL = 'https://m.fengshows.com/api/v3/live?live_type=tv&page=1&page_size=15';
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $bstrURL);                  
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); 
+        $data = curl_exec($ch);
+        curl_close($ch);
 
-$content = "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:4\n#EXT-X-MEDIA-SEQUENCE:$seq\n";
-for($i=0;$i<3;$i++){
-    $content .= "#EXTINF:4.000,\n";
-    $content .= "http://qctv.fengshows.cn/live/".$n[$id]."-".strval($seq+$i).".ts\n";
-}
-header("Content-Type: application/vnd.apple.mpegurl");
-header("Content-Disposition: attachment; filename=playlist.m3u8");
-echo $content;
+        $json = json_decode($data);
+        $url = $json[$id]->live_url_fhd;
+        $aryList = parse_url($url);
+        $substring = str_replace('.flv','', $aryList['path']);
+        $hexTime = dechex(time() + 1800);
+        $hash = md5('obb9Lxyv5C'.$substring.$hexTime);
+        $url = $url.'?txSecret='.$hash.'&txTime='.$hexTime;
+        header('location:'.$url);
+
+?>
