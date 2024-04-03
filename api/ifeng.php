@@ -1,45 +1,89 @@
 <?php
-header("Content-Type: text/json; charset=UTF-8");
-$id = isset($_GET['id'])?$_GET['id']:'fhzx';
-$tv = array(
-  'fhzx' => '4',  //資 訊 台
-  'fhzw' => '5',  //中 文 台
-  'fhhk' => '6',  //香 港 台
-  );
-$url = 'http://m.fengshows.com/api/v3/live?live_type=tv';
-$response = get_data($url);
-$channels = json_decode($response);
-foreach ($channels as $channel) {
-  if($channel->order==$tv[$id]){
-    $channelId = $channel->_id;
-    break; 
-  }    
-}
-$info = get_url($channelId,'FHD');
-if($info->status !== '0'){
-  $info = get_url($channelId,'HD');
-}
-$liveUrl = $info->data->live_url;
-header('Location:'.$liveUrl);
-function get_url($cid, $qa){
-  $url = "https://m.fengshows.com/api/v3/hub/live/auth-url?live_id={$cid}&live_qa={$qa}";
-  $response = get_data($url);
-  $data = json_decode($response);
-  return $data;
-}
-function get_data($url){
-$header=array(
-  'fengshows-client: app(ios,5040718)',
-  'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 15_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/98.0.4758.85 Mobile/15E148 Safari/604.1',
-  'token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiIzMWUzZmVjMC1lY2IzLTExZWQtOWUxNS1mM2FiZjliZjhkOTYiLCJuYW1lIjoiIiwidmlwIjowLCJqdGkiOiJqQm5nMXBvZlQiLCJpYXQiOjE2ODM0NDg5ODksImV4cCI6MTY4NjA0MDk4OX0.0r8PuLetMiusCJul2tuPRzU8fnhxhqxBoycDV0_vKxI', 
-);
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-$data = curl_exec($ch);
-curl_close($ch);
-return $data;
-}
+   
+    $id = $_GET['id']-1; // 1 = 资讯  2 = 中文  3 = 深圳旁边
+
+    $public_key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCsMwDFK9QtawzMO7Df8clvO/gmVbpJ10CRz8uvq2pH4+700yURMgHWiMsIsUza0MPEgIffCAFtn4n0wk+arEcm2/vQd+5ebe0urgpGjl64SST0BxMSNgOWHCmKe7jVNWx6OusSUasDD+ieXChjjMDAaoH0Qx2g2Lg5Zu00abJv+QIDAQAB';
+    $public_key = "-----BEGIN PUBLIC KEY-----\n".wordwrap($public_key, 64, "\n", true) . "\n-----END PUBLIC KEY-----";
+    $public_key_a = openssl_pkey_get_public($public_key);
+   
+    $ticket = '';
+   
+    if(openssl_public_encrypt('$2k4Yk84Mo0O!',$encrypt_data,$public_key_a))
+    {
+        $ticket = base64_encode($encrypt_data);
+    }
+
+    $headers = array(
+        'fengshows-client: app(android,5010208);23',
+        'User-Agent: okhttp/3.11.0'
+    );
+    $bstrURL = "https://m.fengshows.com/api/v3/live?live_type=tv&page=1&page_size=15";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $bstrURL);                  
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    $data = curl_exec($ch);
+    curl_close($ch);
+    $json = json_decode($data);
+
+    $vid = $json[$id]->_id;
+
+    // 不知道是否为动态ID
+    // $vid = '7c96b084-60e1-40a9-89c5-682b994fb680';
+    //7c96b084-60e1-40a9-89c5-682b994fb680  资讯台
+    //f7f48462-9b13-485b-8101-7b54716411ec  中文台
+    //15e02d92-1698-416c-af2f-3e9a872b4d78  深圳旁边台
+
+    /**
+     *  获取token
+     *  token 有一定时效性，建议cache而非频繁登陆，容易ban id
+     */
+
+    $loginData = [
+        "phone"=>"凤凰秀账号", // 手机号码登陆方式，这里是你的手机号
+        "password"=>"凤凰密码", // 密码
+        "ticket"=>$ticket,
+        "code"=>"86"
+
+    ];
+   
+    $headers[] = 'Content-Type: application/json; charset=utf-8'; // 增加 content-type
+    $bstrURL = "https://m.fengshows.com/user/oauth/login";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $bstrURL);                  
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_POST,TRUE);
+    curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($loginData));
+    $data = curl_exec($ch);
+   
+    curl_close($ch);
+    $json = json_decode($data);
+    $token = $json->data->token;  
+    array_pop($headers); // 移除 content-type 头部
+    $headers[] = 'token: '.$token;  // 加入 token 头
+
+    // token 更新接口
+    // https://m.fengshows.com/user/oauth/update
+    // 使用cache的时候
+
+    // 获取播放链接
+    $bstrURL = 'https://m.fengshows.com/api/v3/hub/live/auth-url?live_id='.$vid.'&live_qa=fhd'; // fhd需要提交登陆token
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $bstrURL);                  
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    $data = curl_exec($ch);
+    curl_close($ch);
+    $json = json_decode($data);
+    $liveURL = $json->data->live_url;
+   
+    header("location:". $liveURL);
+
+?>
