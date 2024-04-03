@@ -1,41 +1,45 @@
 <?php
-// 请求接口 URL
-$url = 'https://nine.ifeng.com/PhoenixTvDelay?gv=7.65.0&av=0&proid=ifengnews&day='.date('Y-m-d').'&index=37&phtvType=';
-
-// 根据输入参数获取对应的直播流类型
-if ($_GET['id'] == 'phtvNews') {
-  $phtvType = 'phtvNews';
-} else if ($_GET['id'] == 'phtvChinese') {
-  $phtvType = 'phtvChinese';
-} else {
-  die('Invalid input parameter.');
+header("Content-Type: text/json; charset=UTF-8");
+$id = isset($_GET['id'])?$_GET['id']:'fhzx';
+$tv = array(
+  'fhzx' => '4',  //資 訊 台
+  'fhzw' => '5',  //中 文 台
+  'fhhk' => '6',  //香 港 台
+  );
+$url = 'http://m.fengshows.com/api/v3/live?live_type=tv';
+$response = get_data($url);
+$channels = json_decode($response);
+foreach ($channels as $channel) {
+  if($channel->order==$tv[$id]){
+    $channelId = $channel->_id;
+    break; 
+  }    
 }
-
-// 发送 HTTP 请求
+$info = get_url($channelId,'FHD');
+if($info->status !== '0'){
+  $info = get_url($channelId,'HD');
+}
+$liveUrl = $info->data->live_url;
+header('Location:'.$liveUrl);
+function get_url($cid, $qa){
+  $url = "https://m.fengshows.com/api/v3/hub/live/auth-url?live_id={$cid}&live_qa={$qa}";
+  $response = get_data($url);
+  $data = json_decode($response);
+  return $data;
+}
+function get_data($url){
+$header=array(
+  'fengshows-client: app(ios,5040718)',
+  'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 15_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/98.0.4758.85 Mobile/15E148 Safari/604.1',
+  'token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiIzMWUzZmVjMC1lY2IzLTExZWQtOWUxNS1mM2FiZjliZjhkOTYiLCJuYW1lIjoiIiwidmlwIjowLCJqdGkiOiJqQm5nMXBvZlQiLCJpYXQiOjE2ODM0NDg5ODksImV4cCI6MTY4NjA0MDk4OX0.0r8PuLetMiusCJul2tuPRzU8fnhxhqxBoycDV0_vKxI', 
+);
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url.$phtvType);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_4_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Mobile/14E304');
-$response = curl_exec($ch);
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+$data = curl_exec($ch);
 curl_close($ch);
-
-// 解析响应体
-$data = json_decode($response, true);
-if ($data['code'] != 0) {
-  die('Error: '.$data['msg']);
+return $data;
 }
-
-// 获得播放链接
-$playUrl = $data['data']['m3u8'];
-
-// 修改播放链接，设置 delay=0 并移除 xhttps 和 xresid 参数
-$parsedUrl = parse_url($playUrl);
-parse_str($parsedUrl['query'], $queryParams);
-$queryParams['delay'] = 0;
-unset($queryParams['xhttps'], $queryParams['xresid']);
-$newQuery = http_build_query($queryParams);
-$modifiedUrl = $parsedUrl['scheme'].'://'.$parsedUrl['host'].$parsedUrl['path'].'?'.$newQuery;
-
-// 跳转修改后的播放链接进行播放
-header('Location: '.$modifiedUrl);
-?>
