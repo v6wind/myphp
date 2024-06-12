@@ -32,7 +32,7 @@ function get_data($url){
 $header=array(
   'fengshows-client: app(ios,5040718)',
   'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 15_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/98.0.4758.85 Mobile/15E148 Safari/604.1',
-  'token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI0OTQ3M2U4MC00Yjc3LTExZWMtYjM4My0xZDkxOWNhOTViOWQiLCJuYW1lIjoiVjZXaW5kIiwidmlwIjowLCJqdGkiOiJ2SnVPekVQU3oiLCJyZWdpc3RyYXRpb25faWQiOiIxNzE5NzZmYThhNDFmMjFlNDI4IiwiaWF0IjoxNzEzNDA2OTE2LCJleHAiOjE3MTU5OTg5MTZ9.RuuX4QQSA1s03zOtiHgh5rlJcIpSx_ocs7xZLkqNhUQ', 
+  'token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI0OTQ3M2U4MC00Yjc3LTExZWMtYjM4My0xZDkxOWNhOTViOWQiLCJuYW1lIjoiVjZXaW5kIiwidmlwIjowLCJqdGkiOiJwQ3NESUpaS3giLCJyZWdpc3RyYXRpb25faWQiOiIxNzE5NzZmYThhNDFmMjFlNDI4IiwiaWF0IjoxNzE4MTY4ODc1LCJleHAiOjE3MjA3NjA4NzV9.d3SWrWyLWp24b_iacpBgDhc9CwL8MIadJcmCNqAI-Ww', 
 );
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
