@@ -18,6 +18,7 @@ $allowed_domains = [
     'cdn5.163189.xyz',
     'cdn9.163189.xyz',
     'live.HKDVB.com',
+    'live.hkdvb.com',
     'sc2025.stream-link.org'
 ];
 
