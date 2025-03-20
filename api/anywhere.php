@@ -10,7 +10,7 @@ if ($channelId <= 0) {
 }
 
 // 设置 CURL 请求的 URL 和头信息
-$url = 'https://uapisfm.tvbanywhere.com.sg/video/channel/checkout';
+$url = 'https://uapisfm.tvbanywhere.com/video/channel/checkout';
 $headers = [
     'accept: application/json, text/plain, */*',
     'accept-language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
