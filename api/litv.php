@@ -1,126 +1,316 @@
 <?php
-/*
-方法litv.php?id=4gtv-4gtv001
 
-注释:部署在任意服务器，但是观看的必须台湾节点
+$id = $_GET['id'] ?? "1";
 
-一般来说没声音调节第二个参数就行，从1-10.
-*/
-error_reporting(0);
-header('Content-Type: text/plain; charset=utf-8');
 
-$id = isset($_GET['id']) ? $_GET['id'] : 'litv-longturn14';
+$idtofsASSETID = [
+    '1' => '4gtv-4gtv003',
+    '2' => '4gtv-4gtv001',
+    '3' => '4gtv-4gtv002',
+    '4' => '4gtv-4gtv040',
+    '6' => '4gtv-4gtv041',
+    '7' => '4gtv-4gtv042',
+    '8' => 'litv-ftv17',
+    '9' => 'litv-ftv16',
+    '11' => '4gtv-4gtv018',
+    '15' => '4gtv-4gtv044',
+    '16' => '4gtv-4gtv004',
+    '19' => '4gtv-4gtv070',
+    '21' => '4gtv-4gtv046',
+    '22' => '4gtv-4gtv047',
+    '23' => 'litv-longturn18',
+    '24' => 'litv-ftv09',
+    '25' => '4gtv-4gtv049',
+    '28' => 'litv-longturn11',
+    '30' => '4gtv-4gtv009',
+    '31' => 'litv-ftv13',
+    '33' => '4gtv-4gtv074',
+    '34' => '4gtv-4gtv052',
+    '36' => 'litv-longturn14',
+    '38' => '4gtv-4gtv013',
+    '39' => '4gtv-4gtv017',
+    '40' => '4gtv-4gtv011',
+    '42' => '4gtv-4gtv055',
+    '48' => 'litv-longturn05',
+    '50' => 'litv-longturn07',
+    '51' => 'litv-longturn10',
+    '52' => 'litv-longturn09',
+    '57' => '4gtv-4gtv077',
+    '58' => '4gtv-4gtv101',
+    '59' => '4gtv-4gtv057',
+    '60' => 'litv-ftv15',
+    '61' => 'litv-ftv07',
+    '69' => '4gtv-4gtv014',
+    '78' => '4gtv-4gtv082',
+    '79' => '4gtv-4gtv083',
+    '80' => '4gtv-4gtv059',
+    '82' => '4gtv-4gtv061',
+    '83' => '4gtv-4gtv062',
+    '84' => '4gtv-4gtv063',
+    '85' => 'litv-ftv10',
+    '86' => 'litv-ftv03',
+    '88' => '4gtv-4gtv065',
+    '93' => '4gtv-4gtv035',
+    '94' => '4gtv-4gtv038',
+    '106' => 'litv-longturn20',
+    '107' => '4gtv-4gtv043',
+    '113' => '4gtv-4gtv006',
+    '114' => '4gtv-4gtv039',
+    '116' => '4gtv-4gtv058',
+    '118' => '4gtv-4gtv045',
+    '119' => '4gtv-4gtv054',
+    '121' => 'litv-longturn03',
+    '123' => '4gtv-4gtv064',
+    '124' => '4gtv-4gtv080',
+    '139' => '4gtv-live208',
+    '160' => '4gtv-live201',
+    '168' => '4gtv-live206',
+    '169' => '4gtv-live207',
+    '170' => '4gtv-4gtv084',
+    '171' => '4gtv-4gtv085',
+    '172' => '4gtv-4gtv034',
+    '173' => '4gtv-live047',
+    '174' => '4gtv-live046',
+    '175' => '4gtv-live121',
+    '176' => '4gtv-live157',
+    '178' => '4gtv-live122',
+    '179' => '4gtv-4gtv053',
+    '180' => '4gtv-live138',
+    '181' => '4gtv-live109',
+    '182' => '4gtv-live110',
+    '183' => '4gtv-4gtv073',
+    '184' => '4gtv-4gtv068',
+    '185' => '4gtv-live105',
+    '186' => '4gtv-live620',
+    '188' => '4gtv-live030',
+    '189' => '4gtv-4gtv079',
+    '201' => '4gtv-live021',
+    '202' => '4gtv-live022',
+    '204' => '4gtv-live024',
+    '209' => '4gtv-live007',
+    '210' => '4gtv-live008',
+    '212' => '4gtv-live023',
+    '213' => '4gtv-live025',
+    '214' => '4gtv-live026',
+    '215' => '4gtv-live027',
+    '217' => '4gtv-live029',
+    '218' => '4gtv-live031',
+    '219' => '4gtv-live032',
+    '223' => '4gtv-live050',
+    '224' => '4gtv-live060',
+    '225' => '4gtv-live069',
+    '226' => '4gtv-live071',
+    '227' => '4gtv-4gtv067',
+    '229' => '4gtv-live089',
+    '230' => '4gtv-live106',
+    '231' => '4gtv-live107',
+    '235' => '4gtv-live130',
+    '236' => '4gtv-live144',
+    '237' => '4gtv-live120',
+    '244' => '4gtv-live006',
+    '245' => '4gtv-live005',
+    '246' => '4gtv-live215',
+    '249' => '4gtv-live012',
+    '250' => 'litv-longturn17',
+    '252' => '4gtv-live112',
+    '254' => '4gtv-live403',
+    '255' => '4gtv-live401',
+    '256' => '4gtv-live452',
+    '257' => '4gtv-live413',
+    '258' => '4gtv-live474',
+    '260' => '4gtv-live409',
+    '261' => '4gtv-live417',
+    '262' => '4gtv-live408',
+    '264' => '4gtv-live405',
+    '265' => '4gtv-live404',
+    '266' => '4gtv-live407',
+    '267' => '4gtv-live406',
+    '268' => '4gtv-4gtv075',
+    '269' => '4gtv-live009',
+    '270' => '4gtv-live010',
+    '273' => '4gtv-live014',
+    '274' => '4gtv-live011',
+    '275' => '4gtv-live080',
+    '276' => '4gtv-live410',
+    '277' => '4gtv-live411',
+    '278' => '4gtv-live015',
+    '279' => '4gtv-live016',
+    '280' => 'litv-longturn15',
+    '281' => 'litv-longturn23',
+    '282' => '4gtv-live017',
+    '283' => '4gtv-live059',
+    '284' => '4gtv-live087',
+    '285' => '4gtv-live088',
+    '286' => '4gtv-live049',
+    '287' => '4gtv-live048',
+    '288' => '4gtv-4gtv016',
+    '289' => '4gtv-live301',
+    '290' => '4gtv-live302',
+    '291' => '4gtv-4gtv072',
+    '292' => '4gtv-4gtv152',
+    '293' => '4gtv-4gtv153',
+];
 
-$n = array(
-		'4gtv-4gtv001' => [1, 6],//民视台湾台
-		'4gtv-4gtv002' => [1, 10],//民视
-		'4gtv-4gtv003' => [1, 6],//民视第一台
-		'4gtv-4gtv004' => [1, 8],//民视综艺
-		'4gtv-4gtv006' => [1, 9],//猪哥亮歌厅秀
-		'4gtv-4gtv009' => [2, 7],//中天新闻
-		'4gtv-4gtv010' => [1, 2],//非凡新闻
-		'4gtv-4gtv011' => [1, 6],//影迷數位電影台
-		'4gtv-4gtv013' => [1, 2],//視納華仁紀實頻道
-		'4gtv-4gtv014' => [1, 5],//时尚运动X
-		'4gtv-4gtv016' => [1, 6],//GLOBETROTTER
-		'4gtv-4gtv017' => [1, 6],//amc电影台
-		'4gtv-4gtv018' => [1, 10],//达文西频道
-		'4gtv-4gtv034' => [1, 6],//八大精彩台
-		'4gtv-4gtv039' => [1, 7],//八大综艺台
-		'4gtv-4gtv040' => [1, 6],//中视
-		'4gtv-4gtv041' => [1, 6],//华视
-		'4gtv-4gtv042' => [1, 6],//公视戏剧
-		'4gtv-4gtv043' => [1, 6],//客家电视台
-		'4gtv-4gtv044' => [1, 8],//靖天卡通台
-		'4gtv-4gtv045' => [1, 6],//靖洋戏剧台
-		'4gtv-4gtv046' => [1, 8],//靖天综合台
-		'4gtv-4gtv047' => [1, 8],//靖天日本台
-		'4gtv-4gtv048' => [1, 2],//非凡商业
-		'4gtv-4gtv049' => [1, 8],//采昌影剧
-		'4gtv-4gtv051' => [1, 6],//台视新闻
-		'4gtv-4gtv052' => [1, 8],//华视新闻
-		'4gtv-4gtv053' => [1, 8],//GinxTV
-		'4gtv-4gtv054' => [1, 8],//靖天欢乐台
-		'4gtv-4gtv055' => [1, 8],//靖天映画
-		'4gtv-4gtv056' => [1, 2],//台视财经
-		'4gtv-4gtv057' => [1, 8],//靖洋卡通台
-		'4gtv-4gtv058' => [1, 8],//靖天戏剧台
-		'4gtv-4gtv059' => [1, 6],//古典音乐台
-		'4gtv-4gtv061' => [1, 7],//靖天电影台
-		'4gtv-4gtv062' => [1, 8],//靖天育乐台
-		'4gtv-4gtv063' => [1, 6],//靖天国际台
-		'4gtv-4gtv064' => [1, 8],//中视菁采
-		'4gtv-4gtv065' => [1, 8],//靖天资讯台
-		'4gtv-4gtv066' => [1, 2],//台视
-		'4gtv-4gtv067' => [1, 8],//tvbs精采台
-		'4gtv-4gtv068' => [1, 7],//tvbs欢乐台
-		'4gtv-4gtv070' => [1, 7],//爱尔达娱乐
-		'4gtv-4gtv072' => [1, 2],//tvbs新闻台
-		'4gtv-4gtv073' => [1, 8],//tvbs
-		'4gtv-4gtv074' => [1, 8],//中视新闻
-		'4gtv-4gtv075' => [1, 6],//镜新闻
-		'4gtv-4gtv076' => [1, 2],//CATCHPLAY电影台
-		'4gtv-4gtv077' => [1, 7],//TRACE SPORTS STARS
-		'4gtv-4gtv079' => [1, 2],//阿里郎
-		'4gtv-4gtv080' => [1, 5],//中视经典
-		'4gtv-4gtv082' => [1, 7],//TRACE URBAN
-		'4gtv-4gtv083' => [1, 6],//MEZZO LIVE
-		'4gtv-4gtv084' => [1, 6],//国会频道1
-		'4gtv-4gtv085' => [1, 5],//国会频道2
-		'4gtv-4gtv101' => [1, 6],//智林体育台
-		'4gtv-4gtv104' => [1, 7],//国际财经
-		'4gtv-4gtv109' => [1, 7],//第1商業台
-		'4gtv-4gtv152' => [1, 6],//东森新闻
-		'4gtv-4gtv153' => [1, 6],//东森财经新闻
-		'4gtv-4gtv155' => [1, 6],//民视
-		'4gtv-4gtv156' => [1, 2],//民视台湾台
-		'litv-ftv03' => [1, 7],//美国之音
-		'litv-ftv07' => [1, 7],//民视旅游
-		'litv-ftv09' => [1, 7],//民视影剧
-		'litv-ftv10' => [1, 7],//半岛新闻
-		'litv-ftv13' => [1, 7],//民视新闻台
-		'litv-ftv15' => [1, 7],//爱放动漫
-		'litv-ftv16' => [1, 2],//好消息
-		'litv-ftv17' => [1, 2],//好消息2台
-		'litv-longturn01' => [4, 2],//龙华卡通
-		'litv-longturn03' => [5, 2],//龙华电影
-		'litv-longturn04' => [5, 2],//博斯魅力
-		'litv-longturn05' => [5, 2],//博斯高球1
-		'litv-longturn06' => [5, 2],//博斯高球2
-		'litv-longturn07' => [5, 2],//博斯运动1
-		'litv-longturn08' => [5, 2],//博斯运动2
-		'litv-longturn09' => [5, 2],//博斯网球
-		'litv-longturn10' => [5, 2],//博斯无限
-		'litv-longturn11' => [5, 2],//龙华日韩
-		'litv-longturn12' => [5, 2],//龙华偶像
-		'litv-longturn13' => [4, 2],//博斯无限2
-		'litv-longturn14' => [1, 6],//寰宇新闻台
-		'litv-longturn15' => [5, 2],//寰宇新闻台湾台
-		'litv-longturn17' => [5, 2],//亚洲旅游台
-		'litv-longturn18' => [5, 2],//龙华戏剧
-		'litv-longturn19' => [5, 2],//Smart知识台
-		'litv-longturn20' => [5, 2],//生活英语台
-		'litv-longturn21' => [5, 2],//龙华经典
-		'litv-longturn22' => [5, 2],//台湾戏剧台
-);
+$fsASSET_ID = $idtofsASSETID[$id];
 
-$timestamp = intval(time() / 4 - 355017625);
-$t = $timestamp * 4;
 
-$current = "#EXTM3U" . "\r\n";
-$current .= "#EXT-X-VERSION:3" . "\r\n";
-$current .= "#EXT-X-TARGETDURATION:4" . "\r\n";
-$current .= "#EXT-X-MEDIA-SEQUENCE:{$timestamp}" . "\r\n";
+$authval = generate4GTV_AUTH();
 
-for ($i = 0; $i < 10; $i++) {
-    $current .= "#EXTINF:4," . "\r\n";
-    $current .= "https://ntdfreevcpc-tgc.cdn.hinet.net/live/pool/{$id}/litv-pc/{$id}-avc1_6000000={$n[$id][0]}-mp4a_134000_zho={$n[$id][1]}-begin={$t}0000000-dur=40000000-seq={$timestamp}.ts" . "\r\n";
-    $timestamp++;
-    $t += 4;
+$fsENC_KEY = generateUuid();
+
+
+$curl = curl_init();
+
+curl_setopt($curl, CURLOPT_URL, 'https://api2.4gtv.tv/App/GetChannelUrl2');
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+//curl_setopt($curl, CURLOPT_PROXY, "192.168.10.152:6152"); // 代理 IP 和端口
+//curl_setopt($curl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); // 使用 HTTP 代理
+// curl_setopt($curl, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // 使用 SOCKS5 代理
+curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+curl_setopt($curl, CURLOPT_POSTFIELDS, '{"fnCHANNEL_ID":"' . $id . '","fsDEVICE_TYPE":"mobile","clsAPP_IDENTITY_VALIDATE_ARUS":{"fsVALUE":"","fsENC_KEY":"' . $fsENC_KEY . '"},"fsASSET_ID":"' . $fsASSET_ID . '"}');
+curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+    "4GTV_AUTH: $authval",
+    'fsDEVICE: iOS',
+    "fsVALUE: ",
+    'fsVERSION: 3.2.1',
+    "fsENC_KEY: $fsENC_KEY",
+    'User-Agent: %E5%9B%9B%E5%AD%A3%E7%B7%9A%E4%B8%8A/1 CFNetwork/1568.200.51 Darwin/24.1.0',
+    'Content-Type: application/json',
+    'Accept: */*',
+    'Host: api2.4gtv.tv',
+    'Connection: keep-alive'
+));
+curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+curl_setopt($curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+
+$data = json_decode($response, true);
+
+$urls = $data['Data']['flstURLs'];
+$filteredUrls = [];
+
+$finalUrl = "";
+foreach ($urls as $url) {
+    if (strpos($url, 'cds.cdn.hinet.net') === false) {
+        $finalUrl = $url;
+    }
 }
 
-header('Content-Type: application/vnd.apple.mpegurl'); 
-header('Content-Disposition: inline; filename='.$id.'.m3u8');
-header('Content-Length: ' . strlen($current)); 
-echo $current;
-?>
+if (strpos($finalUrl, 'https://4gtvfree-mozai.4gtv.tv') === 0) {
+    $finalUrl = str_replace('/index.m3u8?', '/1080.m3u8?', $finalUrl);
+    header('location:' . $finalUrl);
+    exit();
+} else {
+    $finalUrl = get_playURL($finalUrl, 'url');
+    $m3u8Content = get_playURL($finalUrl, "ts");
+
+
+    $preArray = explode('/', explode('?', $finalUrl)[0]);
+
+    $midArray = explode('-', $preArray[count($preArray) - 1]);
+
+    $channel = $midArray[0] . '-' . $midArray[1];
+
+    $lines = [];
+
+    $prex = "https://litvpc-hichannel.cdn.hinet.net/live/pool/{$channel}/litv-pc/";
+
+    foreach (explode("\n", $m3u8Content) as $line) {
+        if (strpos($line, '#EXT') === 0 || trim($line) === '') {
+            $lines[] = $line;
+        } else {
+            $ts_file_array = explode('/', explode('?', $line)[0]);
+            $ts_file = $ts_file_array[count($ts_file_array) - 1];
+            $ts_file = str_replace('video=2000000', 'video=6000000', $ts_file);
+            $ts_file = str_replace('video=2936000', 'video=5936000', $ts_file);
+            $ts_file = str_replace('video=3000000', 'video=6000000', $ts_file);
+            $ts_file = str_replace('avc1_2000000=3', 'avc1_6000000=1', $ts_file);
+            $ts_file = str_replace('avc1_2000000=6', 'avc1_6000000=1', $ts_file);
+            $ts_file = str_replace('avc1_2936000=4', 'avc1_6000000=5', $ts_file);
+            $ts_file = str_replace('avc1_3000000=3', 'avc1_6000000=1', $ts_file);
+            $ts_url = $prex . $ts_file;
+            $lines[] = $ts_url;
+        }
+    }
+
+    $m3u8Content = implode("\n", $lines);
+    header("Content-Type: application/vnd.apple.mpegurl");
+    echo $m3u8Content;
+}
+
+function generateUuid()
+{
+    $data = random_bytes(16);
+
+    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+
+    $uuid = sprintf(
+        '%08s-%04s-%04s-%04s-%12s',
+        bin2hex(substr($data, 0, 4)),
+        bin2hex(substr($data, 4, 2)),
+        bin2hex(substr($data, 6, 2)),
+        bin2hex(substr($data, 8, 2)),
+        bin2hex(substr($data, 10, 6))
+    );
+
+    return strtoupper($uuid);
+}
+
+function generate4GTV_AUTH()
+{
+    $headKey = "PyPJU25iI2IQCMWq7kblwh9sGCypqsxMp4sKjJo95SK43h08ff+j1nbWliTySSB+N67BnXrYv9DfwK+ue5wWkg==";
+    $KEY = "ilyB29ZdruuQjC45JhBBR7o2Z8WJ26Vg";
+    $IV = "JUMxvVMmszqUTeKn";
+    $decode = base64_decode($headKey);
+    $format = gmdate("Ymd");
+    $decrypted = openssl_decrypt($decode, "aes-256-cbc", $KEY, OPENSSL_RAW_DATA, $IV);
+    $toHash = $format . $decrypted;
+    $sha512Binary = hash('sha512', $toHash, true);
+    $finalResult = base64_encode($sha512Binary);
+    return $finalResult;
+}
+
+function get_playURL($url, $return_type)
+{
+    $headers = [
+        'User-Agent: okhttp/3.12.11'
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    if (!$response) {
+        return null;
+    }
+
+    $parsed_url = parse_url($url);
+    $resp_text = trim($response);
+    $lines = explode("\n", $resp_text);
+    $latest_line = end($lines);
+    $url_path = dirname($parsed_url['path']);
+    $new_url = $parsed_url['scheme'] . '://' . $parsed_url['host'] . $url_path . '/' . $latest_line;
+
+
+    if ($return_type === 'url') {
+        return $new_url;
+    }
+
+    if (strpos($latest_line, '.ts') !== false) {
+        return $resp_text;
+    } else {
+        return get_playURL($new_url, $return_type);
+    }
+}
