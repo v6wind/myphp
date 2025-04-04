@@ -1,8 +1,17 @@
 <?php
 
-$id = $_GET['id'] ?? "244";
+// 错误处理：设置错误报告级别
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
+// 获取频道 ID，并进行校验和过滤
+$id = $_GET['id'] ?? "244"; // 默认频道 ID 改为 244
+if (!is_numeric($id) || $id < 1 || $id > 999) { // 假设频道 ID 范围是 1-999
+    echo "Error: Invalid channel ID.";
+    exit;
+}
 
+// 频道 ID 与 fsASSET_ID 的映射关系
 $idtofsASSETID = [
     '1' => '4gtv-4gtv003',
     '2' => '4gtv-4gtv001',
@@ -153,20 +162,22 @@ $idtofsASSETID = [
 
 $fsASSET_ID = $idtofsASSETID[$id];
 
+// 错误处理：检查 fsASSET_ID 是否为空
+if (empty($fsASSET_ID)) {
+    echo "Error: Invalid channel ID.";
+    exit;
+}
 
 $authval = generate4GTV_AUTH();
-
 $fsENC_KEY = generateUuid();
 
-
+// 初始化 cURL
 $curl = curl_init();
 
+// 设置 cURL 选项
 curl_setopt($curl, CURLOPT_URL, 'https://api2.4gtv.tv/App/GetChannelUrl2');
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-//curl_setopt($curl, CURLOPT_PROXY, "192.168.10.152:6152"); // 代理 IP 和端口
-//curl_setopt($curl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); // 使用 HTTP 代理
-// curl_setopt($curl, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // 使用 SOCKS5 代理
 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
 curl_setopt($curl, CURLOPT_POSTFIELDS, '{"fnCHANNEL_ID":"' . $id . '","fsDEVICE_TYPE":"mobile","clsAPP_IDENTITY_VALIDATE_ARUS":{"fsVALUE":"","fsENC_KEY":"' . $fsENC_KEY . '"},"fsASSET_ID":"' . $fsASSET_ID . '"}');
 curl_setopt($curl, CURLOPT_HTTPHEADER, array(
@@ -185,41 +196,92 @@ curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 curl_setopt($curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 
+// 执行 cURL 请求
 $response = curl_exec($curl);
 
+// 错误处理：检查 cURL 是否成功
+if (curl_errno($curl)) {
+    echo 'Error: cURL error: ' . curl_error($curl);
+    curl_close($curl);
+    exit;
+}
+
+// 关闭 cURL
 curl_close($curl);
 
+// 解析 JSON 响应
 $data = json_decode($response, true);
 
-$urls = $data['Data']['flstURLs'];
-$filteredUrls = [];
+// 错误处理：检查 JSON 解析是否成功
+if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+    echo 'Error: JSON decode error: ' . json_last_error_msg();
+    exit;
+}
+
+// 获取直播流 URL 列表
+$urls = $data['Data']['flstURLs'] ?? null;
+
+// 错误处理：检查 URL 列表是否为空
+if (empty($urls) || !is_array($urls)) {
+    echo "Error: No URLs found.";
+    exit;
+}
 
 $finalUrl = "";
+
+// 循环遍历 URL 列表，找到第一个不是 cds.cdn.hinet.net 的 URL
 foreach ($urls as $url) {
     if (strpos($url, 'cds.cdn.hinet.net') === false) {
         $finalUrl = $url;
+        break;
     }
 }
 
+// 错误处理：检查是否找到有效的 URL
+if (empty($finalUrl)) {
+    echo "Error: No valid URL found.";
+    exit;
+}
+
+// 判断 URL 前缀
 if (strpos($finalUrl, 'https://4gtvfree-mozai.4gtv.tv') === 0) {
+    // 处理 4gtvfree-mozai.4gtv.tv 域名
     $finalUrl = str_replace('/index.m3u8?', '/1080.m3u8?', $finalUrl);
     header('location:' . $finalUrl);
     exit();
 } else {
+    // 处理其他域名
     $finalUrl = get_playURL($finalUrl, 'url');
     $m3u8Content = get_playURL($finalUrl, "ts");
 
+    // 错误处理：检查 m3u8Content 是否为空
+    if (empty($m3u8Content)) {
+        echo "Error: m3u8Content is empty.";
+        exit;
+    }
 
     $preArray = explode('/', explode('?', $finalUrl)[0]);
 
+    // 错误处理：检查 preArray 是否有足够的元素
+    if (count($preArray) < 2) {
+        echo "Error: Invalid URL format.";
+        exit;
+    }
+
     $midArray = explode('-', $preArray[count($preArray) - 1]);
+
+    // 错误处理：检查 midArray 是否有足够的元素
+    if (count($midArray) < 2) {
+        echo "Error: Invalid URL format.";
+        exit;
+    }
 
     $channel = $midArray[0] . '-' . $midArray[1];
 
     $lines = [];
-
     $prex = "https://litvpc-hichannel.cdn.hinet.net/live/pool/{$channel}/litv-pc/";
 
+    // 替换 TS 文件中的 video 参数
     foreach (explode("\n", $m3u8Content) as $line) {
         if (strpos($line, '#EXT') === 0 || trim($line) === '') {
             $lines[] = $line;
@@ -239,10 +301,13 @@ if (strpos($finalUrl, 'https://4gtvfree-mozai.4gtv.tv') === 0) {
     }
 
     $m3u8Content = implode("\n", $lines);
+
+    // 设置 HTTP Header，输出 M3U8 内容
     header("Content-Type: application/vnd.apple.mpegurl");
     echo $m3u8Content;
 }
 
+// 生成 UUID
 function generateUuid()
 {
     $data = random_bytes(16);
@@ -262,6 +327,7 @@ function generateUuid()
     return strtoupper($uuid);
 }
 
+// 生成 4GTV_AUTH
 function generate4GTV_AUTH()
 {
     $headKey = "PyPJU25iI2IQCMWq7kblwh9sGCypqsxMp4sKjJo95SK43h08ff+j1nbWliTySSB+N67BnXrYv9DfwK+ue5wWkg==";
@@ -276,6 +342,7 @@ function generate4GTV_AUTH()
     return $finalResult;
 }
 
+// 获取播放 URL
 function get_playURL($url, $return_type)
 {
     $headers = [
@@ -290,9 +357,18 @@ function get_playURL($url, $return_type)
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 
     $response = curl_exec($ch);
+
+    // 错误处理：检查 cURL 是否成功
+    if (curl_errno($ch)) {
+        echo 'Error: cURL error: ' . curl_error($ch);
+        curl_close($ch);
+        return null;
+    }
+
     curl_close($ch);
 
-    if (!$response) {
+    // 错误处理：检查响应是否为空
+    if (empty($response)) {
         return null;
     }
 
@@ -302,7 +378,6 @@ function get_playURL($url, $return_type)
     $latest_line = end($lines);
     $url_path = dirname($parsed_url['path']);
     $new_url = $parsed_url['scheme'] . '://' . $parsed_url['host'] . $url_path . '/' . $latest_line;
-
 
     if ($return_type === 'url') {
         return $new_url;
